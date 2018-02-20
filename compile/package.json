@@ -1,0 +1,22 @@
+{
+  "name": "uflywu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uflywu/uflywu.github.io.git"
+  },
+  "author": "even",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uflywu/uflywu.github.io/issues"
+  },
+  "homepage": "https://github.com/uflywu/uflywu.github.io#readme",
+  "dependencies": {
+    "image-size": "^0.6.2"
+  }
+}
