@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>吴宇飞</title>
+  <title>Even の Fly</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
   <!-- Link Swiper's CSS -->
   <link rel="stylesheet" href="./css/swiper.min.css">
@@ -46,8 +46,10 @@
       -webkit-align-items: center;
       align-items: center;
 
-      background-size: contain;
+      background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
+      background-blend-mode: soft-light;
     }
     .swiper-container-v {
       background: #eee;
@@ -56,6 +58,13 @@
     .swiper-slide {
       color: #000;
       background-position: center;
+    }
+    .swiper-slide .photo {
+      width: 100%;
+      height: 100%;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
     }
     .swiper-slide .desc {
       position: absolute;
@@ -86,57 +95,57 @@
 </head>
 <body>
   <div id="main" class="main">
-
+    <div class="swiper-container swiper-container-main">
+      <div class="swiper-wrapper">
+      </div>
+    </div>
   </div>
 
 
   <!-- Swiper JS -->
   <script src="./js/jquery-3.3.1.min.js"></script>
-  <script src="./js/swiper.min.js"></script>
+  <script src="./js/swiper.js"></script>
 
   <!-- Initialize Swiper -->
   <script>
   $(function() {
     var $doc = $(document);
     var docRadio = $doc.width() / $doc.height();
-    var autoPlayInterval = 3000;
-    var isLoop = true;
+    var autoPlayInterval = 5000;
     var isInterrupted = false;
-    var swiperMain, swiperInner;
+    var swiperMain;
+    var sourceData;
 
     $.ajax('data.json', {cache: false}).then(init);
 
     function init(data) {
-      // console.info(data);
-      var tmpl = [];
-      tmpl.push('<div class="swiper-container swiper-container-main">');
-      tmpl.push('<div class="swiper-wrapper">');
-      for (var i = 0; i < data.length; i++) {
-        tmpl.push('<div class="swiper-slide">');
-        tmpl.push(genSlide(data[i]));
-        tmpl.push('</div>');
-      }
-      tmpl.push('</div>');
-      tmpl.push('</div>');
-      $('#main').html(tmpl.join(''));
+      sourceData = data;
       swiperMain = new Swiper('.swiper-container-main', {
-        // spaceBetween: 50
-        // autoplay: {
-        //   delay: 3000,
-        //   disableOnInteraction: false,
-        // },
-        initialSlide: Math.floor(Math.random()*data.length),
+        // initialSlide: Math.floor(Math.random()*data.length),
         direction: 'vertical',
-        // effect: 'cube',
-        loop: isLoop,
-        on: {
-          touchStart: interruptAutoPlay,
-          touchMove: interruptAutoPlay,
-          sliderMove: interruptAutoPlay
-        }
-      });
-      swiperInner = new Swiper('.swiper-container-inner', {
-        loop: isLoop,
+        virtual: {
+          cache: false,
+          slides: data,
+          renderSlide: function(data, index) {
+            var tmpl = [
+              '<div class="swiper-slide">',
+                genSlide(data, index),
+              '</div>'
+            ];
+            setTimeout(function(){
+              var swiper = new Swiper('#swiper'+ index, {
+                effect: 'fade',
+                on: {
+                  touchStart: interruptAutoPlay,
+                  touchMove: interruptAutoPlay,
+                  sliderMove: interruptAutoPlay
+                }
+              });
+              $('#swiper'+ index).data('swiper', swiper);
+            }, 0);
+            return tmpl.join('');
+          }
+        },
         on: {
           touchStart: interruptAutoPlay,
           touchMove: interruptAutoPlay,
@@ -146,42 +155,49 @@
       setInterval(slideToNext, autoPlayInterval);
 
       window.swiperMain = swiperMain;
-      window.swiperInner = swiperInner;
     }
 
     function interruptAutoPlay() {
       isInterrupted = true;
     }
 
-    function genSlide(dataItem) {
+    function genSlide(dataItem, index) {
       var date = dataItem.date;
       var data = dataItem.data;
       var tmpl = [];
-      tmpl.push('<div class="swiper-container swiper-container-inner">');
+      tmpl.push('<div id="swiper', index, '" class="swiper-container swiper-container-inner">');
       tmpl.push('<div class="swiper-wrapper">');
       for (var i = 0; i < data.images.length; i++) {
         var image = data.images[i];
         var imageRadio = image.width / image.height;
         var backgroundSize;
+        var showBg = false;
         if (Math.abs(imageRadio - docRadio) < .5) {
           // 显示一张，超出则截取中间
           backgroundSize = imageRadio < docRadio ? '100% auto' : 'auto 100%';
         } else {
           // 居中，repeat 显示多张
+          showBg = true;
           backgroundSize = imageRadio > docRadio ? '100% auto' : 'auto 100%';
         }
         tmpl.push([
           '<div',
               ' class="swiper-slide"',
-              ' style="background-image:url(./photo/', date, '/', image.name ,');background-size:', backgroundSize, ';">',
+              (showBg ? ' style="background-image:url(./photo/' + date + '/' + image.name + ');"': ''),
+              '>',
+            '<div',
+              ' class="photo"',
+              ' style="background-image:url(./photo/', date, '/', image.name ,');background-size:', backgroundSize, ';"',
+              '>',
+            '</div>',
           '</div>'
         ].join(''));
       }
       tmpl.push('</div>');
       tmpl.push([
         '<div class="desc">',
-          '<h2 class="title">', data.title, '</h2>',
-          '<p class="detail">', data.detail, '</p>',
+          '<h2 class="title">', (data.title || ''), '</h2>',
+          '<p class="detail">', (data.detail || ''), '</p>',
         '</div>',
         '<label class="date">', date, '</label>'
       ].join(''));
@@ -195,32 +211,21 @@
         isInterrupted = false;
         return;
       }
-      var activeSwiper = swiperInner[swiperMain.activeIndex];
-      if (activeSwiper.realIndex < activeSwiper.slides.length - (isLoop ? 3 : 1)) {
+      var activeSwiper = $('#swiper'+ swiperMain.activeIndex).data('swiper');
+      if (activeSwiper.realIndex < (sourceData[swiperMain.activeIndex].data.images.length - 1)) {
         activeSwiper.slideNext();
       } else {
-        swiperInner[(swiperMain.realIndex+1)%swiperInner.length].slideToLoop(0, 0);
-        swiperMain.slideNext();
+        var nextIndex = swiperMain.activeIndex + 1;
+        if (nextIndex < sourceData.length) {
+          activeSwiper = $('#swiper'+ nextIndex).data('swiper');
+          activeSwiper.slideToLoop(0, 0);
+          swiperMain.slideNext();
+        } else {
+          swiperMain.slideTo(0);
+        }
       }
     }
   });
-
-
-    // var swiperH = new Swiper('.swiper-container-h', {
-    //   spaceBetween: 50,
-    //   pagination: {
-    //     el: '.swiper-pagination-h',
-    //     clickable: true,
-    //   },
-    // });
-    // var swiperV = new Swiper('.swiper-container-v', {
-    //   direction: 'vertical',
-    //   spaceBetween: 50,
-    //   pagination: {
-    //     el: '.swiper-pagination-v',
-    //     clickable: true,
-    //   },
-    // });
   </script>
 </body>
 </html>
