@@ -59,12 +59,11 @@
       color: #000;
       background-position: center;
     }
+    .photo-warp {
+      
+    }
     .swiper-slide .photo {
-      width: 100%;
-      height: 100%;
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
+
     }
     .swiper-slide .desc {
       position: absolute;
@@ -172,7 +171,7 @@
         var imageRadio = image.width / image.height;
         var backgroundSize;
         var showBg = false;
-        if (Math.abs(imageRadio - docRadio) < .5) {
+        if (Math.abs(imageRadio - docRadio) < .1) {
           // 显示一张，超出则截取中间
           backgroundSize = imageRadio < docRadio ? '100% auto' : 'auto 100%';
         } else {
@@ -182,14 +181,14 @@
         }
         tmpl.push([
           '<div',
-              ' class="swiper-slide"',
-              (showBg ? ' style="background-image:url(./photo/' + date + '/' + image.name + ');"': ''),
+              ' class="swiper-slide photo-warp"',
               '>',
-            '<div',
-              ' class="photo"',
-              ' style="background-image:url(./photo/', date, '/', image.name ,');background-size:', backgroundSize, ';"',
-              '>',
-            '</div>',
+            '<img',
+                ' class="photo" ',
+                (imageRadio > docRadio ? 'width="100%"' : 'height="100%"'),
+                ' src="./photo/', date, '/', image.name , '"',
+                ' onload="onImageLoad(this)"',
+            '>',
           '</div>'
         ].join(''));
       }
@@ -212,6 +211,10 @@
         return;
       }
       var activeSwiper = $('#swiper'+ swiperMain.activeIndex).data('swiper');
+      console.info($('img', activeSwiper.slides[activeSwiper.realIndex]).data('loaded'));
+      if (!$('img', activeSwiper.slides[activeSwiper.realIndex]).data('loaded')) {
+        return;
+      }
       if (activeSwiper.realIndex < (sourceData[swiperMain.activeIndex].data.images.length - 1)) {
         activeSwiper.slideNext();
       } else {
@@ -225,6 +228,11 @@
         }
       }
     }
+
+    window.onImageLoad = function(el) {
+      el.parentNode.style.backgroundImage = 'url(' + el.src + ')';
+      el.setAttribute('data-loaded', 1);
+    };
   });
   </script>
 </body>
