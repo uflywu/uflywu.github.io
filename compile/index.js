@@ -102,7 +102,7 @@ function uploadImage(filePath) {
       if (err || !body) {
         return reject(err)
       }
-      const reg = body.match(/path":"([^"]*)"/)
+      const reg = body.match(/path":"http:([^"]*)"/)
       if (reg && reg.length) {
         resolve(reg[1])
       } else {
