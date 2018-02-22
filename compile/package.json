@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/uflywu/uflywu.github.io#readme",
   "dependencies": {
-    "image-size": "^0.6.2"
+    "image-size": "^0.6.2",
+    "jsonfile": "^4.0.0",
+    "needle": "^2.2.0",
+    "nodejs-md5": "^1.0.2"
   }
 }
