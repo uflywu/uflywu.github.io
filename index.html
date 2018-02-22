@@ -233,6 +233,27 @@
       el.parentNode.style.backgroundImage = 'url(' + el.src + ')';
       el.setAttribute('data-loaded-time', +new Date );
     };
+
+    window.webview_action = {
+      on_left: function() {
+        var activeSwiper = $('#swiper'+ swiperMain.activeIndex).data('swiper');
+        activeSwiper.slidePrev();
+        isInterrupted = true;
+      },
+      on_right: function() {
+        var activeSwiper = $('#swiper'+ swiperMain.activeIndex).data('swiper');
+        activeSwiper.slideNext();
+        isInterrupted = true;
+      },
+      on_up: function() {
+        swiperMain.slidePrev();
+        isInterrupted = true;
+      },
+      on_down: function() {
+        swiperMain.slideNext();
+        isInterrupted = true;
+      }
+    };
   });
   </script>
 </body>
