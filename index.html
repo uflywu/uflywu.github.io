@@ -110,7 +110,7 @@
   $(function() {
     var $doc = $(document);
     var docRadio = $doc.width() / $doc.height();
-    var autoPlayInterval = 5000;
+    var autoPlayInterval = 6000;
     var isInterrupted = false;
     var swiperMain;
     var sourceData;
@@ -118,7 +118,8 @@
     $.ajax('data.json', {cache: false}).then(init);
 
     function init(data) {
-      sourceData = data;
+      sourceData = data.reverse();
+      window.data = sourceData;
       swiperMain = new Swiper('.swiper-container-main', {
         // initialSlide: Math.floor(Math.random()*data.length),
         direction: 'vertical',
